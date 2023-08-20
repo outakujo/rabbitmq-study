@@ -51,18 +51,18 @@ func sending(c *Client) {
 
 func receiving(c *Client) {
 	var err error
-	for d := range c.delivery {
+	for {
 		select {
 		case <-time.After(2 * time.Minute):
-			break
-		default:
-		}
-		fmt.Printf("now:%v,tag:%v,body:%s\n", time.Now().Format("2006-01-02 15:04:05"),
-			d.DeliveryTag, string(d.Body))
-		err = d.Ack(false)
-		if err != nil {
-			fmt.Println(err)
-			continue
+			fmt.Println("over")
+			return
+		case d := <-c.delivery:
+			fmt.Printf("now:%v,tag:%v,body:%s\n", time.Now().Format("2006-01-02 15:04:05"),
+				d.DeliveryTag, string(d.Body))
+			err = d.Ack(false)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }
